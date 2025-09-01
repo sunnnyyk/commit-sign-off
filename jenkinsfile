@@ -1,24 +1,20 @@
 pipeline {
     agent any
     environment {
-        GIT_REPO = 'https://github.com/OT-MICROSERVICES/notification-worker.git'
-        BRANCH_NAME = 'main'  // Aapke repo ka default branch
+        PROJECT_REPO = 'https://github.com/OT-MICROSERVICES/notification-worker.git'
+        PROJECT_BRANCH = 'main' // default branch of notification-worker
     }
     stages {
-        stage('Checkout') {
+        stage('Checkout Project') {
             steps {
-                // Clone the repo from the specified branch
-                git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
+                git branch: "${PROJECT_BRANCH}", url: "${PROJECT_REPO}"
             }
         }
 
         stage('Check Commit Sign-off') {
             steps {
                 script {
-                    // Get the latest commit message
                     def lastCommitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-                    
-                    // Fail if 'Signed-off-by:' is missing
                     if (!lastCommitMessage.contains("Signed-off-by:")) {
                         error("The latest commit is missing 'Signed-off-by:'. Build failed.")
                     } else {
