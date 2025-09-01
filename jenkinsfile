@@ -1,27 +1,26 @@
 pipeline {
     agent any
     environment {
-        GIT_REPO = 'git@github.com:OT-MICROSERVICES/notification-worker.git'
-        BRANCH_NAME = 'main'  // Adjust if your default branch is different
+        GIT_REPO = 'https://github.com/OT-MICROSERVICES/notification-worker.git'
+        BRANCH_NAME = 'main'  // Aapke repo ka default branch
     }
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Checkout the specified branch
-                    git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
-                }
+                // Clone the repo from the specified branch
+                git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
             }
         }
+
         stage('Check Commit Sign-off') {
             steps {
                 script {
-                    // Retrieve the latest commit message
+                    // Get the latest commit message
                     def lastCommitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-
-                    // Check for the presence of 'Signed-off-by:' in the commit message
+                    
+                    // Fail if 'Signed-off-by:' is missing
                     if (!lastCommitMessage.contains("Signed-off-by:")) {
-                        error("The latest commit is missing a 'Signed-off-by:' line. Please add it and push the changes.")
+                        error("The latest commit is missing 'Signed-off-by:'. Build failed.")
                     } else {
                         echo "Commit sign-off verified."
                     }
